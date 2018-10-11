@@ -33,5 +33,5 @@ execute "untar" do
   command "tar -C /usr/local -xzf #{filename}"
   user 'root'
   cwd tar_path
-#  action :nothing
+  action :nothing
 end
