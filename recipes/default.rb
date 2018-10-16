@@ -9,29 +9,23 @@ directory node['go']['path']
 template "#{ENV['HOME']}/.dotfiles/golang" do
   source 'golang.erb'
   mode 00644
-  owner node['dotfiles']['owner']
+  owner node['dotfiles']['user']
   group node['dotfiles']['group']
 end
 
-tar_path = "#{node['go']['path']}/tarballs"
+tar_path = "#{ENV['HOME']}/Downloads"
 filename = "go#{node['go']['version']}.#{node['go']['os']}-#{node['go']['arch']}.tar.gz"
-
-directory "#{node['go']['path']}/tarballs" do
-  owner node['dotfiles']['owner']
-  group node['dotfiles']['group']
-end
 
 remote_file "#{tar_path}/#{filename}" do
   source "#{node['go']['repo']}/#{filename}"
   checksum node['go']['checksum']
-  owner node['dotfiles']['owner']
+  owner node['dotfiles']['user']
   group node['dotfiles']['group']
-  notifies :execute, 'execute[untar]', :delayed
+  notifies :run, 'execute[untar]', :delayed
 end
 
 execute "untar" do
-  command "tar -C /usr/local -xzf #{filename}"
-  user 'root'
+  command "tar -C /usr/local -xzf #{filename} && chown -R root:wheel /usr/local/go"
   cwd tar_path
   action :nothing
 end
